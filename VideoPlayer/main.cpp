@@ -5,6 +5,8 @@
 #include <GLFW/glfw3.h>
 #include <vector>
 
+#include "LoadFrame.hpp"
+
 int width = 600;
 int height = 600;
 
@@ -34,15 +36,13 @@ int main(){
 
 	glClearColor(0.55f, 0.55f, 0.55f,1.0f);
 
-	std::vector<unsigned char> Pixels(100*100*3);
-	for (int y = 0 ; y< 100;y++)
+	int frame_width, frame_height;
+	unsigned char* frameData;
+	if (!LoadFrame("frog.mp4",&frame_width,&frame_height,&frameData))
 	{
-		for (int x = 0; x < 100; x++){
-			Pixels[y * 100 * 3 + x * 3] = 0xff;
-			Pixels[y * 100 * 3 + x * 3 + 1] = 0x00;
-			Pixels[y * 100 * 3 + x * 3 + 2] = 0x00;
-		}
-	}
+		std::cerr << "Couldn't load video frame" <<std::endl;
+		return -1;
+	}	
 
 	GLuint tex_handle;
 	glGenTextures(1, &tex_handle);
@@ -53,7 +53,11 @@ int main(){
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 	glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, 100, 100, 0, GL_RGB, GL_UNSIGNED_BYTE,  Pixels.data());
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, frame_width, frame_height, 0, GL_RGBA, GL_UNSIGNED_BYTE,  frameData);
+
+	int xOffset = 0;
+	int yOffset = 0;
+
 
 	while(!glfwWindowShouldClose(window)){
 		glfwPollEvents();
@@ -63,17 +67,18 @@ int main(){
 		glfwGetFramebufferSize(window, &wWidth, &wHeight);
 		glMatrixMode(GL_PROJECTION);
 		glLoadIdentity();
-		glOrtho(0, wWidth, 0, wHeight, -1, 1);
+		glOrtho(0, wWidth, wHeight, 0, -1, 1);
 		glMatrixMode(GL_MODELVIEW);
+
 
 		//render the texture
 		glEnable(GL_TEXTURE_2D);
 		glBindTexture(GL_TEXTURE_2D, tex_handle);
 		glBegin(GL_QUADS);
-		glTexCoord2d(0, 0); glVertex2i(0, 0);
-		glTexCoord2d(1, 0); glVertex2i(100, 0);
-		glTexCoord2d(1, 1); glVertex2i(100, 100);
-		glTexCoord2d(0, 1); glVertex2i(0, 100);
+		glTexCoord2d(0, 0); glVertex2i(xOffset, yOffset);
+		glTexCoord2d(1, 0); glVertex2i(xOffset + frame_width, yOffset);
+		glTexCoord2d(1, 1); glVertex2i(xOffset + frame_width, yOffset + frame_height);
+		glTexCoord2d(0, 1); glVertex2i(xOffset, yOffset + frame_height);
 		glEnd();
 		glDisable(GL_TEXTURE_2D);
 
