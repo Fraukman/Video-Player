@@ -6,6 +6,7 @@
 #include <vector>
 
 #include "LoadFrame.hpp"
+#include "VideoReader.h"
 
 int width = 600;
 int height = 600;
@@ -36,13 +37,25 @@ int main(){
 
 	glClearColor(0.55f, 0.55f, 0.55f,1.0f);
 
-	int frame_width, frame_height;
-	unsigned char* frameData;
-	if (!LoadFrame("frog.mp4",&frame_width,&frame_height,&frameData))
+	
+	VideoReaderState vrState = {};
+	if (!videoReaderOpen(&vrState,"frog.mp4"))
 	{
-		std::cerr << "Couldn't load video frame" <<std::endl;
+		std::cerr << "Couldn't load image file" << std::endl;
 		return -1;
-	}	
+	}
+
+	int frame_width = vrState.width;
+	int frame_height = vrState.height;
+	uint8_t* frameData = new uint8_t[frame_width * frame_width * 4];
+
+	if (!videoReaderReadFrame(&vrState,frameData))
+	{
+		std::cerr << "Couldn't load video frame" << std::endl;
+		return -1;
+	}
+
+	videoReaderClose(&vrState);
 
 	GLuint tex_handle;
 	glGenTextures(1, &tex_handle);
@@ -86,12 +99,8 @@ int main(){
 		glfwSwapBuffers(window);
 	}
 
-
 	glfwDestroyWindow(window);
 	glfwTerminate();
-
-	glm::vec3 xablauv{ 0,1,1 };
-	std::cout << xablauv.z << std::endl;
 
 	return 0;
 }
