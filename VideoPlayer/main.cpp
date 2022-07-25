@@ -38,24 +38,24 @@ int main(){
 	glClearColor(0.55f, 0.55f, 0.55f,1.0f);
 
 	
-	VideoReaderState vrState = {};
-	if (!videoReaderOpen(&vrState,"frog.mp4"))
+	VideoReader vrReader;
+	if (!vrReader.videoReaderOpen("frog.mp4"))
 	{
 		std::cerr << "Couldn't load image file" << std::endl;
 		return -1;
 	}
 
-	int frame_width = vrState.width;
-	int frame_height = vrState.height;
-	uint8_t* frameData = new uint8_t[frame_width * frame_width * 4];
+	int frame_width = vrReader.width;
+	int frame_height = vrReader.height;
+	uint8_t* frameData = new uint8_t[frame_width * frame_height * 4];
 
-	if (!videoReaderReadFrame(&vrState,frameData))
+	if (!vrReader.videoReaderReadFrame(frameData))
 	{
 		std::cerr << "Couldn't load video frame" << std::endl;
 		return -1;
 	}
 
-	videoReaderClose(&vrState);
+	vrReader.videoReaderClose();
 
 	GLuint tex_handle;
 	glGenTextures(1, &tex_handle);

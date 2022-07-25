@@ -1,15 +1,7 @@
 #include "VideoReader.h"
 
-bool videoReaderOpen(VideoReaderState* state, const char* filename)
+bool VideoReader::videoReaderOpen(const char* filename)
 {
-	auto& width = state->width;
-	auto& height = state->height;
-	auto& avFormatCtx = state->avFormatCtx;
-	auto& avCodecCtx = state->avCodecCtx;
-	auto& avFrame = state->avFrame;
-	auto& videoStreamIndex = state->videoStreamIndex;
-	auto& avPacket = state->avPacket;
-
 	avFormatCtx = avformat_alloc_context();
 	if (!avFormatCtx)
 	{
@@ -85,16 +77,8 @@ bool videoReaderOpen(VideoReaderState* state, const char* filename)
 }
 
 
-bool videoReaderReadFrame(VideoReaderState* state, uint8_t* frameBuffer)
+bool VideoReader::videoReaderReadFrame(uint8_t* frameBuffer)
 {
-	auto& width = state->width;
-	auto& height = state->height;
-	auto& avFormatCtx = state->avFormatCtx;
-	auto& avCodecCtx = state->avCodecCtx;
-	auto& avFrame = state->avFrame;
-	auto& videoStreamIndex = state->videoStreamIndex;
-	auto& avPacket = state->avPacket;
-	auto& swsScalerCtx = state->swsScalerCtx;
 
 	while (av_read_frame(avFormatCtx, avPacket) >= 0) {
 		if (avPacket->stream_index != videoStreamIndex)
@@ -135,22 +119,18 @@ bool videoReaderReadFrame(VideoReaderState* state, uint8_t* frameBuffer)
 	}
 
 	uint8_t* dest[4] = { frameBuffer,NULL,NULL,NULL };
-	int destLinesize[4] = { width * 4,0,0,0 };
-	if (!avFrame)
-	{
-		int x = 0;
-	}
+	int destLinesize[4] = { width * 4,0,0,0 };	
 	sws_scale(swsScalerCtx, avFrame->data, avFrame->linesize, 0, avFrame->height, dest, destLinesize);
 
 	return true;
 }
 
-void videoReaderClose(VideoReaderState* state)
+void VideoReader::videoReaderClose()
 {
-	avformat_close_input(&state->avFormatCtx);
-	avformat_free_context(state->avFormatCtx);
-	av_frame_free(&state->avFrame);
-	av_packet_free(&state->avPacket);
-	avcodec_free_context(&state->avCodecCtx);
-	sws_freeContext(state->swsScalerCtx);
+	avformat_close_input(&avFormatCtx);
+	avformat_free_context(avFormatCtx);
+	av_frame_free(&avFrame);
+	av_packet_free(&avPacket);
+	avcodec_free_context(&avCodecCtx);
+	sws_freeContext(swsScalerCtx);
 }

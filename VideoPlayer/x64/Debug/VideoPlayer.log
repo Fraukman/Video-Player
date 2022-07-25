@@ -1,3 +1,6 @@
-﻿  main.cpp
+﻿  VideoReader.cpp
+C:\Users\Audaces\source\repos\VideoPlayer\VideoPlayer\VideoReader.cpp(20,20): warning C4018: '<': signed/unsigned mismatch
+  main.cpp
 C:\Users\Audaces\source\repos\VideoPlayer\VideoPlayer\LoadFrame.hpp(29,19): warning C4018: '<': signed/unsigned mismatch
+  Generating Code...
   VideoPlayer.vcxproj -> C:\Users\Audaces\source\repos\VideoPlayer\x64\Debug\VideoPlayer.exe

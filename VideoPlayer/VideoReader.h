@@ -9,10 +9,19 @@ extern "C" {
 
 #include <iostream>
 
-struct VideoReaderState {
+class VideoReader {
+public:
+	VideoReader() {};
+
+	bool videoReaderOpen(const char* filename);
+	bool videoReaderReadFrame(uint8_t * frameBuffer);
+	void videoReaderClose();
+
+public:
 	int width;
 	int height;
 
+private:
 	AVFormatContext* avFormatCtx;
 	AVCodecContext* avCodecCtx;
 	AVFrame* avFrame;
@@ -21,6 +30,3 @@ struct VideoReaderState {
 	int videoStreamIndex;
 };
 
-bool videoReaderOpen(VideoReaderState* state, const char* filename);
-bool videoReaderReadFrame(VideoReaderState* state, uint8_t* frameBuffer);
-void videoReaderClose(VideoReaderState* state);
